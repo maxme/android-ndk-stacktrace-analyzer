@@ -47,7 +47,7 @@ def parseasm( lines ):
         if m:
             if current:
                 ret.append(current)
-            startaddr, funcname =  m.current()
+            startaddr, funcname =  m.groups()
             groups = [ funcname, int(startaddr,16), int(startaddr,16) ]
         m = funcline.match(l)
         if m:
