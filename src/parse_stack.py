@@ -19,7 +19,6 @@
 # http://code.google.com/p/android-ndk-stacktrace-analyzer
 #
 # Modified by Maxime Biais
-
 import sys
 import re
 import os
@@ -31,7 +30,6 @@ funcline = re.compile('^[ ]+([0-9a-f]+):.+')
 def parsestack( lines, libname ):
     crashline = re.compile('.+pc.([0-9a-f]{8}).+%s' % libname )
     ret = []
-    print libname
     for l in lines:
         m = crashline.match(l)
         if m:
@@ -48,7 +46,7 @@ def parseasm( lines ):
             if current:
                 ret.append(current)
             startaddr, funcname =  m.groups()
-            groups = [ funcname, int(startaddr,16), int(startaddr,16) ]
+            current = [ funcname, int(startaddr,16), int(startaddr,16) ]
         m = funcline.match(l)
         if m:
             addr =  m.groups()[0]
@@ -61,6 +59,25 @@ def parseasm( lines ):
     return so, ret
 
 if __name__=="__main__":
+    asm, stack = sys.argv[1],sys.argv[2]
+
+    libname, asm = parseasm( file(asm).read().split('\n') )
+    stack = parsestack( file(stack).read().split('\n'), libname )
+
+    for addr in stack:
+        for func, a1, a2 in asm:
+            if addr >= a1 and addr <= a2:
+                print "0x%08x:%32s + 0x%04x" % ( addr, func, addr-a1 )
+
+import sys
+import re
+import os
+
+sohead = re.compile('(.+\.so):')
+funchead = re.compile('([0-9a-f]{8}) <(.+)>:')
+funcline = re.compile('^[ ]+([0-9a-f]+):.+')
+
+def parsestack( lines, libname ):
     if len(sys.argv) != 3:
         print "Usage: %s <file.asm> <stacktrace.txt>" % sys.argv[0]
         sys.exit(1)

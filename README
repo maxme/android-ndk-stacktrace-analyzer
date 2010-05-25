@@ -1,4 +1,9 @@
+Example Use
+===========
 
+~/work/android-ndk-r3/build/prebuilt/darwin-x86/arm-eabi-4.4.0/bin/arm-eabi-objdump -S mylib.so > mylib.asm
+
+python src/parse_stack.py example/libc.asm example/stack.txt
 
 
 AUTHORS
